@@ -11,6 +11,13 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
         public Dictionary<string, DatabaseConfigSpawnEntry> Spawns { get; set; }
         public Dictionary<string, DatabaseConfigGroupEntry> Groups { get; set; }
         public List<DatabaseConfigItemEntry> ItemSpawns { get; set; }
+        public List<DatabaseConfigPlayerEntry> PlayerSpawns { get; set; }
+    }
+
+    public class DatabaseConfigPlayerEntry
+    {
+        public string SpawnName { get; set; }
+        public string ClassName { get; set; }
     }
 
     public class DatabaseConfigGroupEntry

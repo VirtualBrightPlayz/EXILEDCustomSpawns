@@ -13,6 +13,7 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
     public class CSPEventHandler
     {
         private CustomSpawnPositions plugin;
+        private List<string> replacedPlayerSpawns = new List<string>();
 
         public CSPEventHandler(CustomSpawnPositions customSpawnPositions)
         {
@@ -30,7 +31,7 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                 {
                     plugin.ConfigLoad();
                     plugin.DatabaseLoad();
-                    ev.Allow = true;
+                    ev.Allow = false;
                     ev.Sender.RAMessage("CustomSpawns config reloaded!", pluginName: plugin.getName);
                 }
             }
@@ -43,15 +44,35 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                         string spawnName = args[1].ToLower().Replace('.', '_');
                         if (plugin.db.Spawns.ContainsKey(spawnName))
                         {
-                            ev.Allow = true;
+                            ev.Allow = false;
                             ev.Sender.RAMessage("Spawn already exists!", pluginName: plugin.getName);
+                            return;
+                        }
+                        if (args[2].ToLower().Equals("none"))
+                        {
+                            Vector3 pos2 = player.GetPosition();
+                            DatabaseConfigSpawnEntry entry = new DatabaseConfigSpawnEntry()
+                            {
+                                RoomName = "none",
+                                Position = new SpawnPosition()
+                                {
+                                    X = pos2.x,
+                                    Y = pos2.y,
+                                    Z = pos2.z
+                                }
+                            };
+                            plugin.db.Spawns.Add(spawnName, entry);
+                            ev.Allow = false;
+                            ev.Sender.RAMessage("Spawn added.", pluginName: plugin.getName);
+                            if (plugin.autoSave)
+                                plugin.DatabaseSave();
                             return;
                         }
                         Room final = null;
                         float dist = float.MaxValue;
                         foreach (var room in Map.Rooms)
                         {
-                            if (room.Name.ToLower().StartsWith(args[2].ToLower()) && Vector3.Distance(room.Transform.position, player.GetPosition()) < dist)
+                            if ((room.Name.ToLower().StartsWith(args[2].ToLower()) || args[2].ToLower().Equals("close")) && Vector3.Distance(room.Transform.position, player.GetPosition()) < dist)
                             {
                                 dist = Vector3.Distance(room.Transform.position, player.GetPosition());
                                 final = room;
@@ -62,7 +83,7 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                             Vector3 pos2 = final.Transform.InverseTransformPoint(player.GetPosition());
                             DatabaseConfigSpawnEntry entry = new DatabaseConfigSpawnEntry()
                             {
-                                RoomName = args[2].ToLower(),
+                                RoomName = args[2].ToLower().Equals("close") ? final.Name.Split(' ')[0] : args[2].ToLower(),
                                 Position = new SpawnPosition()
                                 {
                                     X = pos2.x,
@@ -71,24 +92,24 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                                 }
                             };
                             plugin.db.Spawns.Add(spawnName, entry);
-                            ev.Allow = true;
+                            ev.Allow = false;
                             ev.Sender.RAMessage("Spawn added.", pluginName: plugin.getName);
                             if (plugin.autoSave)
                                 plugin.DatabaseSave();
                             return;
                         }
-                        ev.Allow = true;
-                        ev.Sender.RAMessage("Room not found!", pluginName: plugin.getName);
+                        ev.Allow = false;
+                        ev.Sender.RAMessage("Room not found! Use \"CLOSE\" if you want to use the closest room. Use \"NONE\" if it is room independent (ex. surface zone).", pluginName: plugin.getName);
                         return;
                     }
-                    ev.Allow = true;
-                    ev.Sender.RAMessage("Invalid! Usage: CSP_SPAWN_ADD <SpawnName> <RoomName>", pluginName: plugin.getName);
+                    ev.Allow = false;
+                    ev.Sender.RAMessage("Invalid! Usage: CSP_SPAWN_ADD <SpawnName> <RoomName|CLOSE|NONE>", pluginName: plugin.getName);
                     return;
                 }
 
                 if (args[0].ToUpper().Equals("CSP_SPAWN_LIST"))
                 {
-                    ev.Allow = true;
+                    ev.Allow = false;
                     List<string> items = new List<string>();
                     foreach (var item in plugin.db.Spawns)
                     {
@@ -108,19 +129,19 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                             plugin.db.Spawns.Remove(spawnName);
                             if (plugin.autoSave)
                                 plugin.DatabaseSave();
-                            ev.Allow = true;
+                            ev.Allow = false;
                             ev.Sender.RAMessage("Spawn removed.", pluginName: plugin.getName);
                             return;
                         }
                     }
-                    ev.Allow = true;
+                    ev.Allow = false;
                     ev.Sender.RAMessage("Invalid! Usage: CSP_SPAWN_DEL <SpawnName>", pluginName: plugin.getName);
                     return;
                 }
 
                 if (args[0].ToUpper().Equals("CSP_LIST_ITEMS"))
                 {
-                    ev.Allow = true;
+                    ev.Allow = false;
                     List<string> items = new List<string>();
                     foreach (var item in Enum.GetValues(typeof(ItemType)))
                     {
@@ -132,7 +153,7 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
 
                 if (args[0].ToUpper().Equals("CSP_LIST_ROOMS"))
                 {
-                    ev.Allow = true;
+                    ev.Allow = false;
                     List<string> rooms = new List<string>();
                     foreach (var item in Map.Rooms)
                     {
@@ -158,22 +179,22 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                             plugin.db.Groups.Add(args[1], entry);
                             if (plugin.autoSave)
                                 plugin.DatabaseSave();
-                            ev.Allow = true;
+                            ev.Allow = false;
                             ev.Sender.RAMessage("Group added.", pluginName: plugin.getName);
                             return;
                         }
-                        ev.Allow = true;
+                        ev.Allow = false;
                         ev.Sender.RAMessage("Group already exists!", pluginName: plugin.getName);
                         return;
                     }
-                    ev.Allow = true;
+                    ev.Allow = false;
                     ev.Sender.RAMessage("Invalid! Usage: CSP_GROUP_ADD <GroupName> [SpawnChance (0.0-1.0)] [SpawnAmount (non-decimal number)] [Stackable (true|false)]", pluginName: plugin.getName);
                     return;
                 }
 
                 if (args[0].ToUpper().Equals("CSP_GROUP_LIST"))
                 {
-                    ev.Allow = true;
+                    ev.Allow = false;
                     List<string> items = new List<string>();
                     foreach (var item in plugin.db.Groups)
                     {
@@ -192,15 +213,15 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                             plugin.db.Groups.Remove(args[1]);
                             if (plugin.autoSave)
                                 plugin.DatabaseSave();
-                            ev.Allow = true;
+                            ev.Allow = false;
                             ev.Sender.RAMessage("Group removed.", pluginName: plugin.getName);
                             return;
                         }
-                        ev.Allow = true;
+                        ev.Allow = false;
                         ev.Sender.RAMessage("Group does not exist!", pluginName: plugin.getName);
                         return;
                     }
-                    ev.Allow = true;
+                    ev.Allow = false;
                     ev.Sender.RAMessage("Invalid! Usage: CSP_GROUP_DEL <GroupName>", pluginName: plugin.getName);
                     return;
                 }
@@ -210,8 +231,9 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                     if (args.Length == 3 || args.Length == 4 || args.Length == 5)
                     {
                         string spawnName = args[1].ToLower().Replace('.', '_');
-                        if (plugin.db.Spawns.ContainsKey(spawnName) && (plugin.db.Groups.ContainsKey(args[4]) || string.IsNullOrWhiteSpace(args[4])))
+                        if (plugin.db.Spawns.ContainsKey(spawnName) && (args.Length < 5 || string.IsNullOrWhiteSpace(args[4]) || plugin.db.Groups.ContainsKey(args[4])))
                         {
+                            //if (args.Length >= 5 && plugin.db.Groups.ContainsKey(args[4]) || string.IsNullOrWhiteSpace(args[4])
                             ItemType type = (ItemType)Enum.Parse(typeof(ItemType), args[2], true);
                             DatabaseConfigItemEntry entry = new DatabaseConfigItemEntry()
                             {
@@ -223,17 +245,119 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                             plugin.db.ItemSpawns.Add(entry);
                             if (plugin.autoSave)
                                 plugin.DatabaseSave();
-                            ev.Allow = true;
+                            ev.Allow = false;
                             ev.Sender.RAMessage("Item Spawn added!", pluginName: plugin.getName);
                             return;
                         }
-                        ev.Allow = true;
+                        ev.Allow = false;
                         ev.Sender.RAMessage("Spawn or Group not found!", pluginName: plugin.getName);
                         return;
                     }
-                    ev.Allow = true;
+                    ev.Allow = false;
                     ev.Sender.RAMessage("Invalid! Usage: CSP_ITEM_ADD <SpawnName> <ItemName> [SpawnChance (0.0-1.0)] [GroupName]", pluginName: plugin.getName);
                     return;
+                }
+
+                if (args[0].ToUpper().Equals("CSP_PLAYER_ADD"))
+                {
+                    if (args.Length == 3)
+                    {
+
+                        string spawnName = args[1].ToLower().Replace('.', '_');
+                        if (plugin.db.Spawns.ContainsKey(spawnName))
+                        {
+                            RoleType type = args[2].ToLower().Equals("current") ? player.characterClassManager.CurClass : (RoleType)Enum.Parse(typeof(RoleType), args[2], true);
+                            DatabaseConfigPlayerEntry entry = new DatabaseConfigPlayerEntry()
+                            {
+                                ClassName = type.ToString(),
+                                SpawnName = spawnName
+                            };
+                            plugin.db.PlayerSpawns.Add(entry);
+                            if (plugin.autoSave)
+                                plugin.DatabaseSave();
+                            ev.Allow = false;
+                            ev.Sender.RAMessage("Player Spawn added!", pluginName: plugin.getName);
+                            return;
+                        }
+                        ev.Allow = false;
+                        ev.Sender.RAMessage("Spawn not found! Use \"CURRENT\" for the current player role.", pluginName: plugin.getName);
+                        return;
+                    }
+                    ev.Allow = false;
+                    ev.Sender.RAMessage("Invalid! Usage: CSP_PLAYER_ADD <SpawnName> <RoleType|CURRENT>", pluginName: plugin.getName);
+                    return;
+                }
+            }
+        }
+
+        internal void WaitingForPlayers()
+        {
+            replacedPlayerSpawns = new List<string>();
+            foreach (var item in plugin.db.PlayerSpawns)
+            {
+                if (plugin.db.Spawns.ContainsKey(item.SpawnName))
+                {
+                    RoleType type = (RoleType)Enum.Parse(typeof(RoleType), item.ClassName);
+                    switch (type)
+                    {
+                        case RoleType.None:
+                            break;
+                        case RoleType.Scp173:
+                            SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_173");
+                            break;
+                        case RoleType.ClassD:
+                            SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_CDP");
+                            break;
+                        case RoleType.Spectator:
+                            break;
+                        case RoleType.Scp106:
+                            SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_106");
+                            break;
+                        case RoleType.NtfScientist:
+                            SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_MTF");
+                            break;
+                        case RoleType.Scp049:
+                            SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_049");
+                            break;
+                        case RoleType.Scientist:
+                            SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_RSC");
+                            break;
+                        case RoleType.Scp079:
+                            SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_079");
+                            break;
+                        case RoleType.ChaosInsurgency:
+                            SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_CI");
+                            break;
+                        case RoleType.Scp096:
+                            SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_096");
+                            break;
+                        case RoleType.Scp0492:
+                            break;
+                        case RoleType.NtfLieutenant:
+                            SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_MTF");
+                            break;
+                        case RoleType.NtfCommander:
+                            SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_MTF");
+                            break;
+                        case RoleType.NtfCadet:
+                            SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_MTF");
+                            break;
+                        case RoleType.Tutorial:
+                            break;
+                        case RoleType.FacilityGuard:
+                            SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_GUARD");
+                            break;
+                        case RoleType.Scp93953:
+                            SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_939");
+                            break;
+                        case RoleType.Scp93989:
+                            SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_939");
+                            break;
+                    }
+                }
+                else
+                {
+                    Log.Warn("Spawn \"" + item + "\" not found. Skipping item.");
                 }
             }
         }
@@ -292,6 +416,15 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
 
         public void SpawnItemFromSpawnPoint(DatabaseConfigItemEntry item)
         {
+            if (plugin.db.Spawns[item.SpawnName].RoomName.ToLower().Equals("none"))
+            {
+                SpawnPosition spos = plugin.db.Spawns[item.SpawnName].Position;
+                Vector3 pos = new Vector3(spos.X, spos.Y, spos.Z);
+                Pickup itemworld = Map.SpawnItem((ItemType)Enum.Parse(typeof(ItemType), item.ItemName, true), 0f, pos);
+                itemworld.RefreshDurability(true, true);
+                Log.Debug("Spawning at: " + pos.ToString());
+                return;
+            }
             foreach (var room in Map.Rooms)
             {
                 if (room.Name.ToLower().Contains(plugin.db.Spawns[item.SpawnName].RoomName.ToLower()))
@@ -302,6 +435,52 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                     itemworld.RefreshDurability(true, true);
                     Log.Debug("Spawning at: " + pos.ToString());
                 }
+            }
+        }
+
+        public void SpawnGameObjFromSpawnPoint(GameObject item, string spawn, string tag)
+        {
+            if (plugin.db.Spawns[spawn].RoomName.ToLower().Equals("none"))
+            {
+                if (plugin.replacePlayerSpawns && !replacedPlayerSpawns.Contains(tag))
+                {
+                    GameObject[] spawns = GameObject.FindGameObjectsWithTag(tag);
+                    for (int i = 0; i < spawns.Length; i++)
+                    {
+                        GameObject.Destroy(spawns[i]);
+                    }
+                    replacedPlayerSpawns.Add(tag);
+                }
+                SpawnPosition spos = plugin.db.Spawns[spawn].Position;
+                Vector3 pos = new Vector3(spos.X, spos.Y, spos.Z);
+                var go = GameObject.Instantiate(item);
+                go.transform.position = pos;
+                go.tag = tag;
+                Log.Debug("Spawning at: " + pos.ToString());
+                return;
+            }
+            int found = 0;
+            foreach (var room in Map.Rooms)
+            {
+                if (room.Name.ToLower().Contains(plugin.db.Spawns[spawn].RoomName.ToLower()))
+                {
+                    SpawnPosition spos = plugin.db.Spawns[spawn].Position;
+                    Vector3 pos = new Vector3(spos.X, spos.Y, spos.Z);
+                    var go = GameObject.Instantiate(item);
+                    go.transform.position = room.Transform.TransformPoint(pos);
+                    go.tag = tag;
+                    Log.Debug("Spawning at: " + pos.ToString());
+                    found++;
+                }
+            }
+            if (found > 0 && plugin.replacePlayerSpawns && !replacedPlayerSpawns.Contains(tag))
+            {
+                GameObject[] spawns = GameObject.FindGameObjectsWithTag(tag);
+                for (int i = 0; i < spawns.Length; i++)
+                {
+                    GameObject.Destroy(spawns[i]);
+                }
+                replacedPlayerSpawns.Add(tag);
             }
         }
     }

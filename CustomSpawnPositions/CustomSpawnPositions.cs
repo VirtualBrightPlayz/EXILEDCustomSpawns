@@ -18,6 +18,7 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
         internal IDictionary<object, object> configs;
         internal DatabaseConfig db;
         internal bool autoSave = true;
+        internal bool replacePlayerSpawns = false;
 
         public static Dictionary<string, string> roomNamesLCZ = new Dictionary<string, string>() {
             //LCZ
@@ -59,6 +60,7 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
         {
             Events.RoundStartEvent -= PLEV.RoundStart;
             Events.RemoteAdminCommandEvent -= PLEV.RACmd;
+            Events.WaitingForPlayersEvent -= PLEV.WaitingForPlayers;
             PLEV = null;
         }
 
@@ -86,6 +88,7 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
             PLEV = new CSPEventHandler(this);
             Events.RoundStartEvent += PLEV.RoundStart;
             Events.RemoteAdminCommandEvent += PLEV.RACmd;
+            Events.WaitingForPlayersEvent += PLEV.WaitingForPlayers;
         }
 
         public void ConfigLoad()
@@ -94,15 +97,16 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
             var des = new DeserializerBuilder().Build();
             configs = (IDictionary<object, object>)des.Deserialize<object>(data);
             autoSave = configs.GetBool("csp_auto_save", true);
+            replacePlayerSpawns = configs.GetBool("csp_replace_player_spawns", false);
         }
 
-        public void ConfigSave()
+        /*public void ConfigSave()
         {
             Log.Info("Saving config...");
             var ser = new SerializerBuilder().Build();
             File.WriteAllText(Path.Combine(pluginDir, "config-" + typeof(ServerStatic).GetField("ServerPort", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null).ToString() + ".yml"), ser.Serialize(configs));
             Log.Info("Config saved!");
-        }
+        }*/
 
         public void DatabaseSave()
         {
@@ -117,6 +121,15 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
             string data = File.ReadAllText(Path.Combine(pluginDir, "database-" + typeof(ServerStatic).GetField("ServerPort", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null).ToString() + ".yml"));
             var des = new DeserializerBuilder().Build();
             db = des.Deserialize<DatabaseConfig>(data);
+            if (db.Spawns == null)
+                db.Spawns = new Dictionary<string, DatabaseConfigSpawnEntry>();
+            if (db.Groups == null)
+                db.Groups = new Dictionary<string, DatabaseConfigGroupEntry>();
+            if (db.PlayerSpawns == null)
+                db.PlayerSpawns = new List<DatabaseConfigPlayerEntry>();
+            if (db.ItemSpawns == null)
+                db.ItemSpawns = new List<DatabaseConfigItemEntry>();
+            DatabaseSave();
         }
 
         public override void OnReload()
