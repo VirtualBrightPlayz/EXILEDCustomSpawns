@@ -164,6 +164,18 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                     return;
                 }
 
+                if (args[0].ToUpper().Equals("CSP_LIST_ROLES"))
+                {
+                    ev.Allow = false;
+                    List<string> rooms = new List<string>();
+                    foreach (var item in Enum.GetValues(typeof(RoleType)))
+                    {
+                        rooms.Add(item.ToString());
+                    }
+                    ev.Sender.RAMessage("All Roles by name: " + rooms.Join(), pluginName: plugin.getName);
+                    return;
+                }
+
                 if (args[0].ToUpper().Equals("CSP_GROUP_ADD"))
                 {
                     if (args.Length >= 2 && args.Length <= 5)
