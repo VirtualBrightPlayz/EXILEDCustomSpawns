@@ -323,7 +323,7 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                 if (args[0].ToUpper().Equals("CSP_HELP"))
                 {
                     ev.Allow = false;
-                    ev.Sender.RAMessage("CustomSpawnPositions by VirtualBrightPlayz/Brian Zulch.\nCommands:" + "\nCSP_SPAWN_ADD" + "\nCSP_SPAWN_LIST" + "\nCSP_SPAWN_DEL" + "\nCSP_GROUP_ADD" + "\nCSP_GROUP_LIST" + "\nCSP_GROUP_DEL" + "\nCSP_ITEM_ADD" + "\nCSP_ITEM_DEL_ALL_YES" + "\nCSP_PLAYER_ADD" + "\nCSP_PLAYER_DEL_ALL_YES", pluginName: plugin.getName);
+                    ev.Sender.RAMessage("CustomSpawnPositions by VirtualBrightPlayz/Brian Zulch.\nCommands:" + "\nCSP_SPAWN_ADD" + "\nCSP_SPAWN_LIST" + "\nCSP_SPAWN_DEL" + "\nCSP_GROUP_ADD" + "\nCSP_GROUP_LIST" + "\nCSP_GROUP_DEL" + "\nCSP_ITEM_ADD" + "\nCSP_ITEM_DEL_ALL_YES" + "\nCSP_PLAYER_ADD" + "\nCSP_PLAYER_DEL_ALL_YES" + "\nCSP_LIST_ITEMS" + "\nCSP_LIST_ROOMS" + "\nCSP_LIST_ROLES", pluginName: plugin.getName);
                     return;
                 }
             }
@@ -459,9 +459,10 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
             {
                 SpawnPosition spos = plugin.db.Spawns[item.SpawnName].Position;
                 Vector3 pos = new Vector3(spos.X, spos.Y, spos.Z);
-                Pickup itemworld = Map.SpawnItem((ItemType)Enum.Parse(typeof(ItemType), item.ItemName, true), 0f, pos);
+                ItemType type = (ItemType)Enum.Parse(typeof(ItemType), item.ItemName, true);
+                Pickup itemworld = Map.SpawnItem(type, 0f, pos);
                 itemworld.RefreshDurability(true, true);
-                Log.Debug("Spawning at: " + pos.ToString());
+                Log.Debug("Spawning " + type.ToString() + " at: " + pos.ToString());
                 return;
             }
             foreach (var room in Map.Rooms)
@@ -470,9 +471,10 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                 {
                     SpawnPosition spos = plugin.db.Spawns[item.SpawnName].Position;
                     Vector3 pos = new Vector3(spos.X, spos.Y, spos.Z);
-                    Pickup itemworld = Map.SpawnItem((ItemType)Enum.Parse(typeof(ItemType), item.ItemName, true), 0f, room.Transform.TransformPoint(pos));
+                    ItemType type = (ItemType)Enum.Parse(typeof(ItemType), item.ItemName, true);
+                    Pickup itemworld = Map.SpawnItem(type, 0f, room.Transform.TransformPoint(pos));
                     itemworld.RefreshDurability(true, true);
-                    Log.Debug("Spawning at: " + pos.ToString());
+                    Log.Debug("Spawning " + type.ToString() + " at: " + pos.ToString());
                 }
             }
         }
