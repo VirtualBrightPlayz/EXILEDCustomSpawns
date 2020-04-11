@@ -270,6 +270,16 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                     return;
                 }
 
+                if (args[0].ToUpper().Equals("CSP_ITEM_DEL_ALL_YES"))
+                {
+                    plugin.db.ItemSpawns.Clear();
+                    if (plugin.autoSave)
+                        plugin.DatabaseSave();
+                    ev.Allow = false;
+                    ev.Sender.RAMessage("Item Spawns cleared.", pluginName: plugin.getName);
+                    return;
+                }
+
                 if (args[0].ToUpper().Equals("CSP_PLAYER_ADD"))
                 {
                     if (args.Length == 3)
@@ -297,6 +307,23 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                     }
                     ev.Allow = false;
                     ev.Sender.RAMessage("Invalid! Usage: CSP_PLAYER_ADD <SpawnName> <RoleType|CURRENT>", pluginName: plugin.getName);
+                    return;
+                }
+
+                if (args[0].ToUpper().Equals("CSP_PLAYER_DEL_ALL_YES"))
+                {
+                    plugin.db.PlayerSpawns.Clear();
+                    if (plugin.autoSave)
+                        plugin.DatabaseSave();
+                    ev.Allow = false;
+                    ev.Sender.RAMessage("Player Spawns cleared.", pluginName: plugin.getName);
+                    return;
+                }
+
+                if (args[0].ToUpper().Equals("CSP_HELP"))
+                {
+                    ev.Allow = false;
+                    ev.Sender.RAMessage("CustomSpawnPositions by VirtualBrightPlayz/Brian Zulch.\nCommands:" + "\nCSP_SPAWN_ADD" + "\nCSP_SPAWN_LIST" + "\nCSP_SPAWN_DEL" + "\nCSP_GROUP_ADD" + "\nCSP_GROUP_LIST" + "\nCSP_GROUP_DEL" + "\nCSP_ITEM_ADD" + "\nCSP_ITEM_DEL_ALL_YES" + "\nCSP_PLAYER_ADD" + "\nCSP_PLAYER_DEL_ALL_YES", pluginName: plugin.getName);
                     return;
                 }
             }
