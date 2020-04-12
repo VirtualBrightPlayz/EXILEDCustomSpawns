@@ -62,6 +62,7 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                                 }
                             };
                             plugin.db.Spawns.Add(spawnName, entry);
+                            Map.SpawnItem(ItemType.Coin, 0f, pos2);
                             ev.Allow = false;
                             ev.Sender.RAMessage("Spawn added.", pluginName: plugin.getName);
                             if (plugin.autoSave)
@@ -92,6 +93,7 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                                 }
                             };
                             plugin.db.Spawns.Add(spawnName, entry);
+                            Map.SpawnItem(ItemType.Coin, 0f, pos2);
                             ev.Allow = false;
                             ev.Sender.RAMessage("Spawn added.", pluginName: plugin.getName);
                             if (plugin.autoSave)
@@ -166,7 +168,7 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                                 }
                             };
                             plugin.db.Spawns.Add(spawnName, entry);
-                            //Map.SpawnItem(ItemType.Coin, 0f, pos);
+                            Map.SpawnItem(ItemType.Coin, 0f, pos);
                             ev.Allow = false;
                             ev.Sender.RAMessage("Spawn added.", pluginName: plugin.getName);
                             if (plugin.autoSave)
@@ -261,7 +263,7 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                             {
                                 SpawnAmount = args.Length >= 4 ? int.Parse(args[3]) : 1,
                                 SpawnChance = args.Length >= 3 ? float.Parse(args[2]) : 1.0f,
-                                Stackable = args.Length >= 5 ? bool.Parse(args[4]) : true
+                                Stackable = args.Length >= 5 ? bool.Parse(args[4]) : false
                             };
                             plugin.db.Groups.Add(args[1], entry);
                             if (plugin.autoSave)
@@ -399,6 +401,14 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                 {
                     ev.Allow = false;
                     ev.Sender.RAMessage("CustomSpawnPositions by VirtualBrightPlayz/Brian Zulch.\nCommands:" + "\nCSP_SPAWN_ADD" + "\nCSP_SPAWN_LIST" + "\nCSP_SPAWN_DEL" + "\nCSP_GROUP_ADD" + "\nCSP_GROUP_LIST" + "\nCSP_GROUP_DEL" + "\nCSP_ITEM_ADD" + "\nCSP_ITEM_DEL_ALL_YES" + "\nCSP_PLAYER_ADD" + "\nCSP_PLAYER_DEL_ALL_YES" + "\nCSP_LIST_ITEMS" + "\nCSP_LIST_ROOMS" + "\nCSP_LIST_ROLES", pluginName: plugin.getName);
+                    return;
+                }
+
+                if (args[0].ToUpper().Equals("CSP_HELP"))
+                {
+                    plugin.DatabaseSave();
+                    ev.Allow = false;
+                    ev.Sender.RAMessage("Database saved.", pluginName: plugin.getName);
                     return;
                 }
             }
