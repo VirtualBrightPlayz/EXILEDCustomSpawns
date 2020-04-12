@@ -39,7 +39,7 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
             {
                 if (args[0].ToUpper().Equals("CSP_SPAWN_ADD"))
                 {
-                    if (args.Length == 3)
+                    if (args.Length == 3 || (args.Length == 4 && !bool.Parse(args[3])))
                     {
                         string spawnName = args[1].ToLower().Replace('.', '_');
                         if (plugin.db.Spawns.ContainsKey(spawnName))
@@ -83,7 +83,7 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                             Vector3 pos2 = final.Transform.InverseTransformPoint(player.GetPosition());
                             DatabaseConfigSpawnEntry entry = new DatabaseConfigSpawnEntry()
                             {
-                                RoomName = args[2].ToLower().Equals("close") ? final.Name.Split(' ')[0] : args[2].ToLower(),
+                                RoomName = /*args[2].ToLower().Equals("close") ?*/ final.Name.Split(' ')[0] /*: args[2].ToLower()*/,
                                 Position = new SpawnPosition()
                                 {
                                     X = pos2.x,
@@ -102,8 +102,83 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                         ev.Sender.RAMessage("Room not found! Use \"CLOSE\" if you want to use the closest room. Use \"NONE\" if it is room independent (ex. surface zone).", pluginName: plugin.getName);
                         return;
                     }
+                    else if (args.Length == 4 && bool.Parse(args[3]))
+                    {
+                        //player.plyMovementSync.Rotations;
+                        Vector3 dir = player.GetComponent<Scp049PlayerScript>().plyCam.transform.forward; //new Vector3(player.plyMovementSync.Rotations.x, player.plyMovementSync.Rotations.y, 0f);
+                        RaycastHit output;
+                        if (!Physics.Raycast(player.GetComponent<Scp049PlayerScript>().plyCam.transform.position, dir, out output, 100f))
+                        {
+                            ev.Allow = false;
+                            ev.Sender.RAMessage("Look at something, not nothing!", pluginName: plugin.getName);
+                            return;
+                        }
+                        Vector3 pos = output.point;
+                        string spawnName = args[1].ToLower().Replace('.', '_');
+                        if (plugin.db.Spawns.ContainsKey(spawnName))
+                        {
+                            ev.Allow = false;
+                            ev.Sender.RAMessage("Spawn already exists!", pluginName: plugin.getName);
+                            return;
+                        }
+                        if (args[2].ToLower().Equals("none"))
+                        {
+                            Vector3 pos2 = pos;
+                            DatabaseConfigSpawnEntry entry = new DatabaseConfigSpawnEntry()
+                            {
+                                RoomName = "none",
+                                Position = new SpawnPosition()
+                                {
+                                    X = pos2.x,
+                                    Y = pos2.y,
+                                    Z = pos2.z
+                                }
+                            };
+                            plugin.db.Spawns.Add(spawnName, entry);
+                            ev.Allow = false;
+                            ev.Sender.RAMessage("Spawn added.", pluginName: plugin.getName);
+                            if (plugin.autoSave)
+                                plugin.DatabaseSave();
+                            return;
+                        }
+                        Room final = null;
+                        float dist = float.MaxValue;
+                        foreach (var room in Map.Rooms)
+                        {
+                            if ((room.Name.ToLower().StartsWith(args[2].ToLower()) || args[2].ToLower().Equals("close")) && Vector3.Distance(room.Transform.position, pos) < dist)
+                            {
+                                
+                                dist = Vector3.Distance(room.Transform.position, pos);
+                                final = room;
+                            }
+                        }
+                        if (final != null)
+                        {
+                            Vector3 pos2 = final.Transform.InverseTransformPoint(pos);
+                            DatabaseConfigSpawnEntry entry = new DatabaseConfigSpawnEntry()
+                            {
+                                RoomName = /*args[2].ToLower().Equals("close") ?*/ final.Name.Split(' ')[0] /*: args[2].ToLower()*/,
+                                Position = new SpawnPosition()
+                                {
+                                    X = pos2.x,
+                                    Y = pos2.y,
+                                    Z = pos2.z
+                                }
+                            };
+                            plugin.db.Spawns.Add(spawnName, entry);
+                            //Map.SpawnItem(ItemType.Coin, 0f, pos);
+                            ev.Allow = false;
+                            ev.Sender.RAMessage("Spawn added.", pluginName: plugin.getName);
+                            if (plugin.autoSave)
+                                plugin.DatabaseSave();
+                            return;
+                        }
+                        ev.Allow = false;
+                        ev.Sender.RAMessage("Room not found! Use \"CLOSE\" if you want to use the closest room. Use \"NONE\" if it is room independent (ex. surface zone).", pluginName: plugin.getName);
+                        return;
+                    }
                     ev.Allow = false;
-                    ev.Sender.RAMessage("Invalid! Usage: CSP_SPAWN_ADD <SpawnName> <RoomName|CLOSE|NONE>", pluginName: plugin.getName);
+                    ev.Sender.RAMessage("Invalid! Usage: CSP_SPAWN_ADD <SpawnName> <RoomName|CLOSE|NONE> [Looking(true|false)]", pluginName: plugin.getName);
                     return;
                 }
 
@@ -522,6 +597,18 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                     GameObject.Destroy(spawns[i]);
                 }
                 replacedPlayerSpawns.Add(tag);
+            }
+            foreach (var room in Map.Rooms)
+            {
+                if (room.Name.ToLower().Contains(plugin.db.Spawns[spawn].RoomName.ToLower()))
+                {
+                    SpawnPosition spos = plugin.db.Spawns[spawn].Position;
+                    Vector3 pos = new Vector3(spos.X, spos.Y, spos.Z);
+                    var go = GameObject.Instantiate(item);
+                    go.transform.position = room.Transform.TransformPoint(pos);
+                    go.tag = tag;
+                    Log.Debug("Spawning at: " + pos.ToString());
+                }
             }
         }
     }
