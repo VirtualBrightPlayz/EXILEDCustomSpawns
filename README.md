@@ -6,9 +6,9 @@
 
 ## Example
 
-`csp_reload`
+`csp_reload` - requires `customspawns.reload`
 
-`csp_help`
+`csp_help` - requires `customspawns.manage` as well as the following commands
 
 `csp_list_items`
 
