@@ -447,7 +447,7 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                             SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_RSC");
                             break;
                         case RoleType.Scp079:
-                            SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_079");
+                            //SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_079");
                             break;
                         case RoleType.ChaosInsurgency:
                             SpawnGameObjFromSpawnPoint(new GameObject(), item.SpawnName, "SP_CI");
