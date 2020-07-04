@@ -107,9 +107,9 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                     else if (args.Length == 4 && bool.Parse(args[3]))
                     {
                         //player.plyMovementSync.Rotations;
-                        Vector3 dir = player.GetComponent<Scp049PlayerScript>().plyCam.transform.forward; //new Vector3(player.plyMovementSync.Rotations.x, player.plyMovementSync.Rotations.y, 0f);
+                        Vector3 dir = player.PlayerCameraReference.forward; //new Vector3(player.plyMovementSync.Rotations.x, player.plyMovementSync.Rotations.y, 0f);
                         RaycastHit output;
-                        if (!Physics.Raycast(player.GetComponent<Scp049PlayerScript>().plyCam.transform.position, dir, out output, 100f))
+                        if (!Physics.Raycast(player.PlayerCameraReference.position, dir, out output, 100f))
                         {
                             ev.Allow = false;
                             ev.Sender.RAMessage("Look at something, not nothing!", pluginName: plugin.getName);
