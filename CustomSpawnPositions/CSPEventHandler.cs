@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using Exiled.API.Extensions;
 using Exiled.API.Features;
-using Harmony;
+using HarmonyLib;
 using UnityEngine;
 
 namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions

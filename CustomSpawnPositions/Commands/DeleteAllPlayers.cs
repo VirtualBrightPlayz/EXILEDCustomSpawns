@@ -1,7 +1,7 @@
 ﻿using CommandSystem;
 using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
-using Harmony;
+using HarmonyLib;
 using RemoteAdmin;
 using System;
 using System.Collections.Generic;

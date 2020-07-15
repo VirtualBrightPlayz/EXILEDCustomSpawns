@@ -1,6 +1,6 @@
 ﻿using CommandSystem;
 using Exiled.API.Features;
-using Harmony;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
