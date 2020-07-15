@@ -1,4 +1,5 @@
 ﻿using Exiled.API.Features;
+using Exiled.Loader;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -66,12 +67,12 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
         public override void OnEnabled()
         {
             base.OnEnabled();
-            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            pluginDir = Path.Combine(appData, "Plugins", "CustomSpawns");
+            //string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            pluginDir = Path.Combine(Paths.Configs, "CustomSpawns");
             if (!Directory.Exists(pluginDir))
                 Directory.CreateDirectory(pluginDir);
-            if (!File.Exists(Path.Combine(pluginDir, "config-" + typeof(ServerStatic).GetField("ServerPort", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null).ToString() + ".yml")))
-                File.WriteAllText(Path.Combine(pluginDir, "config-" + typeof(ServerStatic).GetField("ServerPort", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null).ToString() + ".yml"), "");
+            /*if (!File.Exists(Path.Combine(pluginDir, "config-" + typeof(ServerStatic).GetField("ServerPort", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null).ToString() + ".yml")))
+                File.WriteAllText(Path.Combine(pluginDir, "config-" + typeof(ServerStatic).GetField("ServerPort", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null).ToString() + ".yml"), "");*/
             if (!File.Exists(Path.Combine(pluginDir, "database-" + typeof(ServerStatic).GetField("ServerPort", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null).ToString() + ".yml")))
             {
                 db = new DatabaseConfig()
