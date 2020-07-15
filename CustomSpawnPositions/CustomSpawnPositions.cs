@@ -1,4 +1,4 @@
-﻿using EXILED;
+﻿using Exiled.API.Features;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,15 +10,14 @@ using YamlDotNet.Serialization;
 
 namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
 {
-    public class CustomSpawnPositions : Plugin
+    public class CustomSpawnPositions : Plugin<Config>
     {
+        public static CustomSpawnPositions csp;
 
         public CSPEventHandler PLEV;
         public static string pluginDir;
         internal IDictionary<object, object> configs;
         internal DatabaseConfig db;
-        internal bool autoSave = true;
-        internal bool replacePlayerSpawns = false;
 
         public static Dictionary<string, string> roomNamesLCZ = new Dictionary<string, string>() {
             //LCZ
@@ -54,18 +53,19 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
             { "ez", "hcz_ez_checkpoint" },
         };
 
-        public override string getName => "CustomSpawnPositions";
+        public override string Name => "CustomSpawnPositions";
 
-        public override void OnDisable()
+        public override void OnDisabled()
         {
-            Events.RoundStartEvent -= PLEV.RoundStart;
-            Events.RemoteAdminCommandEvent -= PLEV.RACmd;
-            Events.WaitingForPlayersEvent -= PLEV.WaitingForPlayers;
+            base.OnDisabled();
+            Exiled.Events.Handlers.Server.RoundStarted -= PLEV.RoundStart;
+            Exiled.Events.Handlers.Server.WaitingForPlayers -= PLEV.WaitingForPlayers;
             PLEV = null;
         }
 
-        public override void OnEnable()
+        public override void OnEnabled()
         {
+            base.OnEnabled();
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             pluginDir = Path.Combine(appData, "Plugins", "CustomSpawns");
             if (!Directory.Exists(pluginDir))
@@ -83,22 +83,20 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
                 DatabaseSave();
                 //File.WriteAllText(Path.Combine(pluginDir, "database-" + typeof(ServerStatic).GetField("ServerPort", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null).ToString() + ".yml"), "");
             }
-            ConfigLoad();
             DatabaseLoad();
             PLEV = new CSPEventHandler(this);
-            Events.RoundStartEvent += PLEV.RoundStart;
-            Events.RemoteAdminCommandEvent += PLEV.RACmd;
-            Events.WaitingForPlayersEvent += PLEV.WaitingForPlayers;
+            Exiled.Events.Handlers.Server.RoundStarted += PLEV.RoundStart;
+            Exiled.Events.Handlers.Server.WaitingForPlayers += PLEV.WaitingForPlayers;
         }
 
-        public void ConfigLoad()
+        /*public void ConfigLoad()
         {
             string data = File.ReadAllText(Path.Combine(pluginDir, "config-" + typeof(ServerStatic).GetField("ServerPort", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null).ToString() + ".yml"));
             var des = new DeserializerBuilder().Build();
             configs = (IDictionary<object, object>)des.Deserialize<object>(data);
             autoSave = configs.GetBool("csp_auto_save", true);
             replacePlayerSpawns = configs.GetBool("csp_replace_player_spawns", false);
-        }
+        }*/
 
         /*public void ConfigSave()
         {
@@ -130,10 +128,6 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
             if (db.ItemSpawns == null)
                 db.ItemSpawns = new List<DatabaseConfigItemEntry>();
             DatabaseSave();
-        }
-
-        public override void OnReload()
-        {
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Exiled.API.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
 {
+    public class Config : IConfig
+    {
+        public bool IsEnabled { get; set; } = true;
+        public bool csp_auto_save { get; set; } = true;
+        public bool csp_replace_player_spawns { get; set; } = false;
+    }
+
     public class DatabaseConfig
     {
         public Dictionary<string, DatabaseConfigSpawnEntry> Spawns { get; set; }
