@@ -1,5 +1,6 @@
 ﻿using Exiled.API.Features;
 using Exiled.Loader;
+using EXILEDPluginUpdater;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +12,7 @@ using YamlDotNet.Serialization;
 
 namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
 {
-    public class CustomSpawnPositions : Plugin<Config>
+    public class CustomSpawnPositions : Plugin<Config>, IAutoUpdate
     {
         public static CustomSpawnPositions csp;
 
@@ -56,7 +57,9 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
 
         public override string Name => "CustomSpawnPositions";
         public override string Author => "VirtualBrightPlayz";
-        public override Version Version => new Version(1, 1, 0);
+        public override Version Version => new Version(1, 1, 2);
+
+        public string UpdateManifestUrl => "https://raw.githubusercontent.com/VirtualBrightPlayz/EXILEDCustomSpawns/master/manifest.json";
 
         public override void OnDisabled()
         {
