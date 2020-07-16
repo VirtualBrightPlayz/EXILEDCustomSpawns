@@ -55,6 +55,8 @@ namespace VirtualBrightPlayz.SCPSL.CustomSpawnPositions
         };
 
         public override string Name => "CustomSpawnPositions";
+        public override string Author => "VirtualBrightPlayz";
+        public override Version Version => new Version(1, 1, 0);
 
         public override void OnDisabled()
         {
