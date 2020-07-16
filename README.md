@@ -1,5 +1,7 @@
 # SCPSLCustomSpawnpoints
 
+## Requires https://github.com/VirtualBrightPlayz/EXILEDPluginUpdater
+
 ## It's a bit of a confusing plugin to use, and is very easy to break, so read carefully!
 
 ## Config files are stored in a yaml format.
